@@ -8,6 +8,7 @@ import requests
 import re
 import os.path
 import PyPDF2
+import configparser
 
 def pretty_print_POST(req):
     """
@@ -31,8 +32,11 @@ URL_NOTENSPIEGEL2 = '#auswahlBaum%7Cabschluss%3Aabschl%3D88%7Cstudiengang%3Astg%
 URL_STUDIENVERLAUF_PDF = 'https://vorlesungen.tu-bs.de/qisserver/rds?state=hisreports&status=receive&publishid=pruef_all,de,0&vmfile=no&moduleCall=NotenspiegelTUBS&lastState=notenspiegelStudent&asi='
 FILENAME = 'studienverlauf.pdf'
 
-USERNAME = ''
-PASSWORD = ''
+config = configparser.ConfigParser()
+config.read('credentials.ini')
+
+USERNAME = config['student account']['username']
+PASSWORD = config['student account']['password']
 
 payload = {
            'asdf': USERNAME,
