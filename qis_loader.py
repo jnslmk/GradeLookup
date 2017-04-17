@@ -43,7 +43,7 @@ def download_gradesheet(filename, username, password):
             print('Login unsuccessful. Aborting script.')
             raise SystemExit()
         else:
-            print('Successfully logged in as ' + username)
+            print('Successfully logged in as ' + username + '.')
         asi = re.findall(r'topitem=functions&amp;subitem=myLecturesWScheck&amp;asi=(.+)" class="auflistung "', p.text)[0]
         print('asi: ', asi)
         
@@ -64,20 +64,30 @@ def text_from_pdf(filestream):
     pdfText = pageObj.extractText()
     return re.findall(r'\nNote\n(.+)Erläuterungen:', pdfText, re.DOTALL)
     
-def compare_pdfs():
+def compare_pdfs(oldfile, newfile):
     if os.path.isfile(FILENAME):
-        with open(FILENAME, 'rb') as f:
-            pdfTextBody_old = text_from_pdf(f)
-        with open('tmp.pdf', 'rb') as f:
-            pdfTextBody_new = text_from_pdf(f)
-        if pdfTextBody_old == pdfTextBody_new:
+        with open(oldfile, 'rb') as f:
+            pdf_text_body_old = text_from_pdf(f)
+        with open(newfile, 'rb') as f:
+            pdf_text_body_new = text_from_pdf(f)
+        if pdf_text_body_old == pdf_text_body_new:
             print('No changes since last download')
+            return 0, pdf_text_body_old, pdf_text_body_new
         else:
             print('There have been changes since last download')
+            return 1, pdf_text_body_old, pdf_text_body_new
     else:
         print('No previous file found')
+        return 0, 0, 0
+        
+def get_total_result(text):
+    re.findall()
+        
+def get_differences(text_old, text_new):
+    return 1
 
 FILENAME = 'studienverlauf.pdf'
+FILENAME_TMP = 'tmp.pdf'
 
 config = configparser.ConfigParser()
 config.read('credentials.ini')
@@ -86,7 +96,10 @@ username = config['student account']['username']
 password = config['student account']['password']
 
 try:
-    download_gradesheet('tmp.pdf', username, password)
+    download_gradesheet(FILENAME_TMP, username, password)
+    changed, text_old, text_new = compare_pdfs(FILENAME, FILENAME_TMP)
+    if changed:
+        differences = get_differences(text_old, text_new)
 except SystemExit:
     print('Script aborted.')
 
