@@ -39,6 +39,11 @@ def download_gradesheet(filename, username, password):
     
     with requests.Session() as s:
         p = s.post(LOGIN_URL, data = payload)
+        if 'Anmeldung fehlgeschlagen' in p.text:
+            print('Login unsuccessful. Aborting script.')
+            raise SystemExit()
+        else:
+            print('Successfully logged in as ' + username)
         asi = re.findall(r'topitem=functions&amp;subitem=myLecturesWScheck&amp;asi=(.+)" class="auflistung "', p.text)[0]
         print('asi: ', asi)
         
@@ -58,6 +63,19 @@ def text_from_pdf(filestream):
     pageObj = pdfReader.getPage(0)
     pdfText = pageObj.extractText()
     return re.findall(r'\nNote\n(.+)Erläuterungen:', pdfText, re.DOTALL)
+    
+def compare_pdfs():
+    if os.path.isfile(FILENAME):
+        with open(FILENAME, 'rb') as f:
+            pdfTextBody_old = text_from_pdf(f)
+        with open('tmp.pdf', 'rb') as f:
+            pdfTextBody_new = text_from_pdf(f)
+        if pdfTextBody_old == pdfTextBody_new:
+            print('No changes since last download')
+        else:
+            print('There have been changes since last download')
+    else:
+        print('No previous file found')
 
 FILENAME = 'studienverlauf.pdf'
 
@@ -67,19 +85,11 @@ config.read('credentials.ini')
 username = config['student account']['username']
 password = config['student account']['password']
 
-download_gradesheet('tmp.pdf', username, password)
-        
-if os.path.isfile(FILENAME):
-    with open(FILENAME, 'rb') as f:
-        pdfTextBody_old = text_from_pdf(f)
-    with open('tmp.pdf', 'rb') as f:
-        pdfTextBody_new = text_from_pdf(f)
-    if pdfTextBody_old == pdfTextBody_new:
-        print('No changes since last download')
-    else:
-        print('There have been changes since last download')
-else:
-    print('No previous file found')
+try:
+    download_gradesheet('tmp.pdf', username, password)
+except SystemExit:
+    print('Script aborted.')
+
 
 #        print(r_studienverlauf_pdf.headers)
 #        pretty_print_POST(r_studienverlauf_pdf.request)
