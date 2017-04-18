@@ -9,22 +9,6 @@ import re
 import os.path
 import PyPDF2
 import configparser
-
-def pretty_print_POST(req):
-    """
-    At this point it is completely built and ready
-    to be fired; it is "prepared".
-
-    However pay attention at the formatting used in 
-    this function because it is programmed to be pretty 
-    printed and may differ from the actual request.
-    """
-    print('{}\n{}\n{}\n\n{}'.format(
-        '-----------START-----------',
-        req.method + ' ' + req.url,
-        '\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
-        req.body,
-    ))
     
 def download_gradesheet(filename, username, password):
     LOGIN_URL = 'https://vorlesungen.tu-bs.de/qisserver/rds?state=user&type=1&category=auth.login&startpage=portal.vm&breadCrumbSource=portal'
@@ -102,7 +86,3 @@ try:
         differences = get_differences(text_old, text_new)
 except SystemExit:
     print('Script aborted.')
-
-
-#        print(r_studienverlauf_pdf.headers)
-#        pretty_print_POST(r_studienverlauf_pdf.request)
