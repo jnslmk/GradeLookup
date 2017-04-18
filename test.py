@@ -17,10 +17,12 @@ api_key = 'key-9936186767def6b1c2f7eeef9bdd41bc'
 lst_text_old = text_old.split(sep='\n')
 lst_text_new = text_new.split(sep='\n')
 
-total_old_credits = lst_text_old[1]
-total_old_grade = lst_text_old[2]
-total_new_credits = lst_text_new[1]
-total_new_grade = lst_text_new[2]
+dict_total_old = {}
+dict_total_new = {}
+dict_total_old['total_credits'] = lst_text_old[1]
+dict_total_old['total_grade'] = lst_text_old[2]
+dict_total_new['total_credits'] = lst_text_new[1]
+dict_total_new['total_grade'] = lst_text_new[2]
 
 def get_modules(lst_text):
     lst_modules = []
@@ -48,17 +50,47 @@ def get_module_contents(lst_text, modules):
     
 def compare_module_contents(contents_old, contents_new):
     lst_modules_changed = []
+    lst_modules_changed.append([])
+    lst_modules_changed.append([])
     lst_modules_new = []
     for key, value in contents_new.items():
         if key in contents_old:
             if value != contents_old[key]:
-                lst_modules_changed.append(value)
+                lst_modules_changed[0].append(value)
+                lst_modules_changed[1].append(contents_old[key])
         else:
             lst_modules_new.append(value)
     return lst_modules_changed, lst_modules_new
     
-def build_mailtext(lst_modules_changed, lst_modules_new):
-    return 'test'
+def build_mailtext(dt_old, dt_new, lst_changed, lst_new):
+    text = ''
+    if dt_old['total_credits'] != dt_new['total_credits'] \
+            and dt_old['total_grade'] != dt_new['total_grade']:
+        text += 'Neue Gesamtnote: ' + dt_new['total_grade'] + ' bei ' \
+                    + dt_new['total_credits'] + ',\n' \
+                    + 'vorher ' + dt_old['total_grade'] + ' bei ' \
+                    + dt_old['total_credits'] + '.\n\n'
+    else:
+        text += 'Unveränderte Gesamtnote ' + dt_new['total_grade'] \
+                    + ' bei ' + dt_new['total_credits'] + '.\n\n'
+    if len(lst_new) != 0:
+        text += 'Neu hinzugefügte Module:\n'
+        for module in lst_new:
+            for entry in module[:-1]:
+                text += entry + ' '
+            text += module[-1] + '\n'
+        text += '\n'
+    if len(lst_changed[0]) != 0:
+        text += 'Veränderte Module:\n'
+        for module in lst_changed:
+            for entry in module[0][:-1]:
+                text += entry + ' '
+            text += module[0][-1] + '\n'
+            text += '('
+            for entry in module[1][:-1]:
+                text += entry + ' '
+            text += module[1][-1] + ')\n'
+    return text
     
 def send_notification(text, email, recepient, api_key):
     p = requests.post(
@@ -81,6 +113,8 @@ dict_module_contents_new = get_module_contents(lst_text_new, modules_new)
 
 lst_modules_changed, lst_modules_new = \
     compare_module_contents(dict_module_contents_old, dict_module_contents_new)
-    
-mailtext = build_mailtext(lst_modules_changed, lst_modules_new)
-send_notification(mailtext, email, recepient, api_key)
+
+mailtext = build_mailtext(dict_total_old, dict_total_new, \
+                          lst_modules_changed, lst_modules_new)
+print(mailtext)
+#send_notification(mailtext, email, recepient, api_key)
