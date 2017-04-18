@@ -5,9 +5,14 @@ Created on Mon Apr 17 22:34:25 2017
 @author: Jonas
 """
 import re
+import requests
 
 text_new = 'Vorläufiges Gesamtergebnis\n25/120\n2,3\n2511071\nTechnische Optik\n08.03.2017\nAN (RT)\n*\nKernbereich Mechatronik\n2412281\nAutomatisierungstechnik 1\n(Automatisierungstechnik) \n27.02.2017\n5\n1F\nBE\n3,3\n2540103\nSimulation komplexer Systeme\n5\n1F\nBE\n1,3\nProfilbereich Mechatronik\n2412481\nElektronische Fahrzeugsysteme\n21.03.2017\n5\n1F\nBE\n2,0\n2538091\nDigitale Schaltungstechnik\n09.03.2017\n5\n1F\nBE\n2,7\n4210401\nProgrammieren I für Studierende der Mechatronik\n1F\nAN\n*\nLaborbereich B Mechatronik\n2540241\nReibungs-und Kontaktflächenphysik\n01.03.2017\n5\n1F\nBE\n2,3\n'
 text_old = 'Vorläufiges Gesamtergebnis\n15/120\n2,7\n2511071\nTechnische Optik\n08.03.2017\nAN (RT)\n*\nKernbereich Mechatronik\n2540103\nSimulation komplexer Systeme\n1F\nAN\n*\nProfilbereich Mechatronik\n2412481\nElektronische Fahrzeugsysteme\n21.03.2017\n1F\nAN\n*\n2538091\nDigitale Schaltungstechnik\n09.03.2017\n5\n1F\nBE\n2,7\n4210401\nProgrammieren I für Studierende der Mechatronik\n1F\nAN\n*\nLaborbereich B Mechatronik\n2540241\nReibungs-und Kontaktflächenphysik\n01.03.2017\n5\n1F\nBE\n2,3\n'
+
+email = 'jns.lemke@gmail.com'
+recepient = 'Jonas Lemke'
+api_key = 'key-9936186767def6b1c2f7eeef9bdd41bc'
 
 lst_text_old = text_old.split(sep='\n')
 lst_text_new = text_new.split(sep='\n')
@@ -51,7 +56,23 @@ def compare_module_contents(contents_old, contents_new):
         else:
             lst_modules_new.append(value)
     return lst_modules_changed, lst_modules_new
-        
+    
+def build_mailtext(lst_modules_changed, lst_modules_new):
+    return 'test'
+    
+def send_notification(text, email, recepient, api_key):
+    p = requests.post(
+        "https://api.mailgun.net/v3/sandboxf9f20535651b426ab55ebc05468cd3f1.mailgun.org/messages",
+        auth=("api", api_key),
+        data={"from": "Mailgun Sandbox <postmaster@sandboxf9f20535651b426ab55ebc05468cd3f1.mailgun.org>",
+              "to": recepient + ' <' + email + '>',
+              "subject": "Neue Moduleinträge im QIS-Portal",
+              "text": text}
+        )
+    if p.status_code == 200:
+        print('Sent email successfully')
+    else:
+        print('Email sending not successful')
 modules_old = get_modules(lst_text_old)
 modules_new = get_modules(lst_text_new)
 
@@ -60,3 +81,6 @@ dict_module_contents_new = get_module_contents(lst_text_new, modules_new)
 
 lst_modules_changed, lst_modules_new = \
     compare_module_contents(dict_module_contents_old, dict_module_contents_new)
+    
+mailtext = build_mailtext(lst_modules_changed, lst_modules_new)
+send_notification(mailtext, email, recepient, api_key)
