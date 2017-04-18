@@ -50,14 +50,11 @@ def get_module_contents(lst_text, modules):
     
 def compare_module_contents(contents_old, contents_new):
     lst_modules_changed = []
-    lst_modules_changed.append([])
-    lst_modules_changed.append([])
     lst_modules_new = []
     for key, value in contents_new.items():
         if key in contents_old:
             if value != contents_old[key]:
-                lst_modules_changed[0].append(value)
-                lst_modules_changed[1].append(contents_old[key])
+                lst_modules_changed.append([value, contents_old[key]])
         else:
             lst_modules_new.append(value)
     return lst_modules_changed, lst_modules_new
