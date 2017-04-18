@@ -25,12 +25,11 @@ def get_modules(lst_text):
     for index, value in enumerate(lst_text):
         if re.match(r'\d{7}', value):
             lst_modules.append([value, index])
-            print(str(index) + ': ' + str(value))
     return lst_modules
     
 def get_module_content(lst_text, start, end):
     lst_module = []
-    for value in lst_text[start:end]:
+    for value in lst_text[start:end + 1]:
         if not (('bereich' in value and 'Mechatronik' in value) or value == ''):
             lst_module.append(value)
     return lst_module
@@ -38,14 +37,15 @@ def get_module_content(lst_text, start, end):
 def get_module_contents(lst_text, lst_modules):
     lst_module_contents = []
     for index, tpl in enumerate(lst_modules):
-        if not index == len(lst_modules) - 1:
+        if index < len(lst_modules) - 1:
             end = lst_modules[index + 1][1] - 1
         else:
             end = len(lst_text) - 1
-        lst_module_contents.append(get_module_content(lst_text, index, end))
+        lst_module_contents.append(get_module_content(lst_text, tpl[1], end))
     return lst_module_contents
     
 lst_modules_old = get_modules(lst_text_old)
 lst_modules_new = get_modules(lst_text_new)
 
 lst_modulecontents_old = get_module_contents(lst_text_old, lst_modules_old)
+lst_modulecontents_new = get_module_contents(lst_text_new, lst_modules_new)
