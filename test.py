@@ -10,6 +10,8 @@ import requests
 text_new = 'Vorläufiges Gesamtergebnis\n25/120\n2,3\n2511071\nTechnische Optik\n08.03.2017\nAN (RT)\n*\nKernbereich Mechatronik\n2412281\nAutomatisierungstechnik 1\n(Automatisierungstechnik) \n27.02.2017\n5\n1F\nBE\n3,3\n2540103\nSimulation komplexer Systeme\n5\n1F\nBE\n1,3\nProfilbereich Mechatronik\n2412481\nElektronische Fahrzeugsysteme\n21.03.2017\n5\n1F\nBE\n2,0\n2538091\nDigitale Schaltungstechnik\n09.03.2017\n5\n1F\nBE\n2,7\n4210401\nProgrammieren I für Studierende der Mechatronik\n1F\nAN\n*\nLaborbereich B Mechatronik\n2540241\nReibungs-und Kontaktflächenphysik\n01.03.2017\n5\n1F\nBE\n2,3\n'
 text_old = 'Vorläufiges Gesamtergebnis\n15/120\n2,7\n2511071\nTechnische Optik\n08.03.2017\nAN (RT)\n*\nKernbereich Mechatronik\n2540103\nSimulation komplexer Systeme\n1F\nAN\n*\nProfilbereich Mechatronik\n2412481\nElektronische Fahrzeugsysteme\n21.03.2017\n1F\nAN\n*\n2538091\nDigitale Schaltungstechnik\n09.03.2017\n5\n1F\nBE\n2,7\n4210401\nProgrammieren I für Studierende der Mechatronik\n1F\nAN\n*\nLaborbereich B Mechatronik\n2540241\nReibungs-und Kontaktflächenphysik\n01.03.2017\n5\n1F\nBE\n2,3\n'
 
+FILENAME = 'studienverlauf.pdf'
+
 email = 'jns.lemke@gmail.com'
 recepient = 'Jonas Lemke'
 api_key = 'key-9936186767def6b1c2f7eeef9bdd41bc'
@@ -89,14 +91,15 @@ def build_mailtext(dt_old, dt_new, lst_changed, lst_new):
             text += module[1][-1] + ')\n'
     return text
     
-def send_notification(text, email, recepient, api_key):
+def send_notification(text, pdf_file, email, recepient, api_key):
     p = requests.post(
         "https://api.mailgun.net/v3/sandboxf9f20535651b426ab55ebc05468cd3f1.mailgun.org/messages",
         auth=("api", api_key),
         data={"from": "Mailgun Sandbox <postmaster@sandboxf9f20535651b426ab55ebc05468cd3f1.mailgun.org>",
               "to": recepient + ' <' + email + '>',
               "subject": "Neue Moduleinträge im QIS-Portal",
-              "text": text}
+              "text": text},
+        files=[("attachment", open(pdf_file, 'rb'))]
         )
     if p.status_code == 200:
         print('Sent email successfully')
@@ -113,5 +116,5 @@ lst_modules_changed, lst_modules_new = \
 
 mailtext = build_mailtext(dict_total_old, dict_total_new, \
                           lst_modules_changed, lst_modules_new)
-print(mailtext)
-#send_notification(mailtext, email, recepient, api_key)
+#print(mailtext)
+send_notification(mailtext, FILENAME, email, recepient, api_key)
