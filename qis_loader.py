@@ -78,6 +78,9 @@ config.read('credentials.ini')
 
 username = config['student account']['username']
 password = config['student account']['password']
+email = config['email account']['email']
+recepient = config['email account']['recepient']
+api_key = config['email account']['api-key']
 
 try:
     download_gradesheet(FILENAME_TMP, username, password)
