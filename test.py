@@ -6,11 +6,13 @@ Created on Mon Apr 17 22:34:25 2017
 """
 import re
 import requests
+import os
 
 text_new = 'Vorläufiges Gesamtergebnis\n25/120\n2,3\n2511071\nTechnische Optik\n08.03.2017\nAN (RT)\n*\nKernbereich Mechatronik\n2412281\nAutomatisierungstechnik 1\n(Automatisierungstechnik) \n27.02.2017\n5\n1F\nBE\n3,3\n2540103\nSimulation komplexer Systeme\n5\n1F\nBE\n1,3\nProfilbereich Mechatronik\n2412481\nElektronische Fahrzeugsysteme\n21.03.2017\n5\n1F\nBE\n2,0\n2538091\nDigitale Schaltungstechnik\n09.03.2017\n5\n1F\nBE\n2,7\n4210401\nProgrammieren I für Studierende der Mechatronik\n1F\nAN\n*\nLaborbereich B Mechatronik\n2540241\nReibungs-und Kontaktflächenphysik\n01.03.2017\n5\n1F\nBE\n2,3\n'
 text_old = 'Vorläufiges Gesamtergebnis\n15/120\n2,7\n2511071\nTechnische Optik\n08.03.2017\nAN (RT)\n*\nKernbereich Mechatronik\n2540103\nSimulation komplexer Systeme\n1F\nAN\n*\nProfilbereich Mechatronik\n2412481\nElektronische Fahrzeugsysteme\n21.03.2017\n1F\nAN\n*\n2538091\nDigitale Schaltungstechnik\n09.03.2017\n5\n1F\nBE\n2,7\n4210401\nProgrammieren I für Studierende der Mechatronik\n1F\nAN\n*\nLaborbereich B Mechatronik\n2540241\nReibungs-und Kontaktflächenphysik\n01.03.2017\n5\n1F\nBE\n2,3\n'
 
 FILENAME = 'studienverlauf.pdf'
+FILENAME_TMP = 'tmp.pdf'
 
 email = 'jns.lemke@gmail.com'
 recepient = 'Jonas Lemke'
@@ -25,6 +27,10 @@ dict_total_old['total_credits'] = lst_text_old[1]
 dict_total_old['total_grade'] = lst_text_old[2]
 dict_total_new['total_credits'] = lst_text_new[1]
 dict_total_new['total_grade'] = lst_text_new[2]
+
+def replace_pdf(old_pdf, replacement):
+    os.remove(old_pdf)
+    os.rename(replacement, old_pdf)
 
 def get_modules(lst_text):
     lst_modules = []
@@ -105,6 +111,9 @@ def send_notification(text, pdf_file, email, recepient, api_key):
         print('Sent email successfully')
     else:
         print('Email sending not successful')
+        
+replace_pdf(FILENAME, FILENAME_TMP)
+        
 modules_old = get_modules(lst_text_old)
 modules_new = get_modules(lst_text_new)
 
